@@ -7,7 +7,7 @@ import glob
 import cv2
 import tqdm
 import torch
-
+import shutil
 
 def is_valid_dir(subdirs, files):
     return len(subdirs) == 1 and len(files) == 1 and "timestamps.txt" in files and "imgs" in subdirs
@@ -52,6 +52,13 @@ def process_dir(outdir, indir, args):
         pbar.set_description(f"Num events generated: {num_events}")
         pbar.update(1)
         counter += 1
+    
+    # cleanup tmp folder (input folder)
+    pbar.close()
+    print(f"Finished processing folder {indir}. Generated a total of {num_events} events.")
+    print(f"CLEANING UP {indir}...")
+    shutil.rmtree(indir)
+
 
 
 if __name__ == "__main__":
