@@ -29,9 +29,19 @@ def process_dir(outdir, indir, args):
     image_files = sorted(glob.glob(os.path.join(indir, "imgs", "*.png")))
     
     pbar = tqdm.tqdm(total=len(image_files)-1)
-    num_events = 0
+    
+    empty_events = {
+    'x': np.array([], dtype=np.int16),  # Event x-coordinates
+    'y': np.array([], dtype=np.int16),  # Event y-coordinates
+    'p': np.array([], dtype=np.int8),   # Event polarities (e.g., 0 or 1)
+    't': np.array([], dtype=np.int64),   # Event timestamps (in nanoseconds)
+    }
 
     counter = 0
+    np.savez(os.path.join(outdir, "%05d.npz" % 0), **empty_events)
+
+    counter += 1
+    num_events = 0
     for image_file, timestamp_ns in zip(image_files, timestamps_ns):
         image = cv2.imread(image_file, cv2.IMREAD_GRAYSCALE)
         image = cv2.resize(image, dsize=(args.img_size[1], args.img_size[0]), interpolation=cv2.INTER_AREA)
@@ -48,7 +58,7 @@ def process_dir(outdir, indir, args):
         num_events += len(sub_events['t'])
  
         # do something with the events
-        np.savez(os.path.join(outdir, "%010d.npz" % counter), **sub_events)
+        np.savez(os.path.join(outdir, "%05d.npz" % counter), **sub_events)
         pbar.set_description(f"Num events generated: {num_events}")
         pbar.update(1)
         counter += 1
