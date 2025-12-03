@@ -38,9 +38,6 @@ def process_dir(outdir, indir, args):
     }
 
     counter = 0
-    np.savez(os.path.join(outdir, "%05d.npz" % 0), **empty_events)
-
-    counter += 1
     num_events = 0
     for image_file, timestamp_ns in zip(image_files, timestamps_ns):
         image = cv2.imread(image_file, cv2.IMREAD_GRAYSCALE)
@@ -52,6 +49,10 @@ def process_dir(outdir, indir, args):
 
         # for the first image, no events are generated, so this needs to be skipped
         if sub_events is None:
+            np.savez(os.path.join(outdir, "%05d.npz" % counter), **empty_events)
+            pbar.set_description(f"Num events generated: {num_events}")
+            pbar.update(1)
+            counter += 1
             continue
 
         sub_events = {k: v.cpu() for k, v in sub_events.items()}    
